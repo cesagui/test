@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. Page Setup --- */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: radial-gradient(circle at center, #ffdde1, #ee9ca7);
+            font-family: 'Press Start 2P', 'Silkscreen', 'VT323', monospace;
+            overflow: hidden;
+            perspective: 1500px; /* Essential for 3D effect */
+        }
+
+        /* --- 2. The Main Container (500px) --- */
+        .locket-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.1s;
+        }
+
+        .locket-container:active {
+            transform: scale(0.98);
+        }
+
+        /* --- 3. The Hidden Note (Inside) --- */
+        .note {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 450px;
+            height: 400px;
+            background-color: #fff0f5;
+            padding: 30px;
+            box-shadow: 8px 8px 0px #000;
+            border-radius: 0px;
+            border: 4px solid #000;
+            text-align: center;
+            z-index: 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        /* Initial Question State */
+        #question-block {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            animation: fadeIn 0.5s;
+            align-items: center;
+        }
+
+        /* Angry State */
+        #angry-block {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: popIn 0.4s;
+        }
+
+        /* Gif Confirmation State */
+        #gif-block {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: popIn 0.4s;
+        }
+
+        .gif-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 0px;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            background-color: #fff0f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #999;
+            text-align: center;
+            padding: 0;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .gif-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        #gif-block h3 {
+            color: #d81b60;
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+
+        /* Wrong Answer State */
+        #wrong-block {
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: popIn 0.4s;
+        }
+
+        #wrong-block h2 {
+            color: #d81b60;
+            margin: 0;
+            font-size: 1.5rem;
+            line-height: 1.4;
+        }
+
+        #wrong-block .flip-emoji {
+            font-size: 3rem;
+            margin: 10px 0;
+        }
+
+        /* Success State */
+        #success-msg {
+            display: none; /* Hidden by default */
+            color: #d81b60;
+            font-size: 1.8rem;
+            font-weight: bold;
+            animation: popIn 0.5s ease;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .note h2 {
+            margin: 0;
+            color: #d81b60;
+            font-family: 'Press Start 2P', 'Silkscreen', 'VT323', monospace;
+            font-size: 2.2rem;
+            line-height: 1.5;
+            font-weight: normal;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 25px;
+            border: 3px solid #000;
+            border-radius: 0px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-weight: bold;
+            font-family: 'Press Start 2P', 'Silkscreen', 'VT323', monospace;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+
+        button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn-yes {
+            background-color: #e91e63;
+            color: white;
+            font-weight: normal;
+        }
+        .btn-yes:hover {
+            background-color: #c2185b;
+        }
+
+        .btn-no {
+            background-color: #fff;
+            color: #000;
+        }
+        .btn-no:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Angry Image Styling */
+        .angry-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 0px;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px #000;
+        }
+
+        .retry-link {
+            color: #999;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .retry-link:hover { color: #e91e63; }
+
+        /* --- 4. The Heart Wrapper --- */
+        .heart {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; 
+            filter: drop-shadow(0 20px 20px rgba(0,0,0,0.3));
+        }
+
+        /* --- 5. The Two Halves --- */
+        .half {
+            width: 250px; /* Half of 500px */
+            height: 500px;
+            transition: transform 2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1.5s ease-in-out;
+            position: absolute;
+            top: 0;
+            backface-visibility: hidden;
+        }
+
+        .half svg {
+            width: 250px;
+            height: 500px;
+            fill: #e91e63;
+        }
+
+        .left-half {
+            left: 0;
+            transform-origin: right center; /* Opens from center seam */
+        }
+
+        .right-half {
+            right: 0;
+            transform-origin: left center; /* Opens from center seam */
+        }
+
+        /* SVG Colors */
+        .heart-shape {
+            fill: url(#heart-gradient);
+            stroke: #c2185b;
+            stroke-width: 2px;
+        }
+
+        /* --- 6. Open Animations --- */
+        .locket-container.open .left-half {
+            transform: rotateY(-100deg) translateZ(20px);
+            opacity: 0.3;
+        }
+
+        .locket-container.open .right-half {
+            transform: rotateY(100deg) translateZ(20px);
+            opacity: 0.3;
+        }
+
+        .locket-container.open .note {
+            z-index: 20; /* Bring note to front so buttons work */
+            opacity: 1;
+        }
+
+        /* Utilities */
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .hint {
+            position: absolute;
+            bottom: 30px;
+            color: #d81b60;
+            font-size: 1.1rem;
+            font-weight: bold;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+        
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            top: -50px;
+            z-index: 100;
+            animation: fall linear forwards;
+            opacity: 0.7;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- Mobile Responsive --- */
+        @media (max-width: 768px) {
+            body {
+                perspective: 1000px;
+            }
+
+            .locket-container {
+                width: 300px;
+                height: 300px;
+            }
+
+            .note {
+                width: 260px;
+                height: 240px;
+                padding: 20px;
+            }
+
+            .note h2 {
+                font-size: 1.6rem;
+                line-height: 1.2;
+            }
+
+            #question-block {
+                gap: 15px;
+            }
+
+            button {
+                padding: 8px 20px;
+                font-size: 1rem;
+            }
+
+            #success-msg {
+                font-size: 1rem;
+            }
+
+            .angry-img {
+                width: 90px;
+                height: 90px;
+            }
+
+            .half {
+                width: 150px;
+                height: 300px;
+            }
+
+            .half svg {
+                width: 150px;
+                height: 300px;
+            }
+
+            .hint {
+                font-size: 0.9rem;
+                bottom: 20px;
+            }
+
+            .confetti {
+                font-size: 16px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .locket-container {
+                width: 260px;
+                height: 260px;
+            }
+
+            .note {
+                width: 220px;
+                height: 200px;
+                padding: 15px;
+            }
+
+            .note h2 {
+                font-size: 1.3rem;
+            }
+
+            button {
+                padding: 7px 18px;
+                font-size: 0.9rem;
+            }
+
+            .buttons {
+                gap: 10px;
+            }
+
+            #success-msg {
+                font-size: 1.2rem;
+            }
+
+            .angry-img {
+                width: 75px;
+                height: 75px;
+            }
+
+            .gif-image {
+                width: 150px;
+                height: 150px;
+                font-size: 0.7rem;
+            }
+
+            #gif-block h3 {
+                font-size: 0.85rem;
+            }
+
+            #wrong-block h2 {
+                font-size: 1.2rem;
+            }
+
+            #wrong-block .flip-emoji {
+                font-size: 2rem;
+            }
+
+            .half {
+                width: 130px;
+                height: 260px;
+            }
+
+            .half svg {
+                width: 130px;
+                height: 260px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="locket-container" id="locket">
+        
+        <div class="note">
+            
+            <div id="question-block">
+                <img src="victoria.jpg" 
+                     alt="victoria image" class="angry-img">
+                <h2 style="font-size: 2rem; line-height: 1.4;"><span style="font-size: 2rem;">Victoria,</span><br><span style="font-size: 1.6rem;">will you be my Valentine?</span></h2>
+                <div class="buttons">
+                    <button class="btn-yes" onclick="sayYes(event)">Yes!</button>
+                    <button class="btn-no" onclick="sayNo(event)">No</button>
+                </div>
+            </div>
+
+            <div id="angry-block">
+                <img src="itzyupset.jpg" 
+                     alt="Angry Itzy" class="angry-img">
+                
+                <h3 style="color:#d81b60; margin:0;">Itzy will be upset >:(</h3>
+                <h3 style="color:#d81b60; margin:0; font-size:0.9rem; margin-top:5px;">Change your mind?</h3>
+                <div class="buttons">
+                    <button class="btn-yes" onclick="confirmFromItzy(event)">Yes!</button>
+                    <button class="btn-no" onclick="rejectFromItzy(event)">No</button>
+                </div>
+            </div>
+
+            <div id="gif-block">
+                <!-- Replace the div below with your actual gif image -->
+                <div class="gif-image">
+                    <img src="angrycesar.jpg" alt="Special Gif" style="width:100%; height:100%; object-fit:cover; border-radius:7px;">
+                    
+                </div>
+                <h3 style="font-size: .8rem; color:#d81b60; margin:0;">You are making a BIG mistake here</h3>
+                <h3 style="font-size: 0.6rem;  color:#757575; margin:0; margin-top:5px;">You will come to regret this</h3>
+                <div class="buttons">
+                    <button class="btn-yes" onclick="confirmFromGif(event)">Yes</button>
+                    <button class="btn-no" onclick="rejectFromGif(event)">No</button>
+                </div>
+            </div>
+
+            <div id="wrong-block">
+                <div class="flip-emoji">(╯°□°)╯︵ ┻━┻</div>
+                <h2>Wrong answer!!</h2>
+                <button class="btn-yes" onclick="retryFromStart(event)">Okay, I'll try again</button>
+            </div>
+            
+            <div id="success-msg">
+                <div class="gif-image">
+                    <img src="itzyhappy.jpg" alt="Special Gif" style="width:100%; height:100%; object-fit:cover; border-radius:7px;">
+                </div>
+                <br>Itzy is pleased.<br> 😻💞
+            </div>
+
+        </div>
+
+        <div class="heart">
+            <div class="half left-half">
+                <svg viewBox="0 0 100 200" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="heart-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff6090;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#e91e63;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path class="heart-shape" d="M 100,180 C 20,130 0,90 0,60 C 0,25 30,0 65,0 C 85,0 95,15 100,30 L 100,180 Z" />
+                </svg>
+            </div>
+
+            <div class="half right-half">
+                <svg viewBox="0 0 100 200" preserveAspectRatio="none">
+                    <path class="heart-shape" d="M 0,180 C 80,130 100,90 100,60 C 100,25 70,0 35,0 C 15,0 5,15 0,30 L 0,180 Z" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="hint" id="hint-text">Click to Open</div>
+
+    <script>
+        const locket = document.getElementById('locket');
+        const questionBlock = document.getElementById('question-block');
+        const angryBlock = document.getElementById('angry-block');
+        const gifBlock = document.getElementById('gif-block');
+        const wrongBlock = document.getElementById('wrong-block');
+        const successMsg = document.getElementById('success-msg');
+        const hintText = document.getElementById('hint-text');
+
+        let isSuccess = false;
+
+        // 1. Toggle Open/Close
+        locket.addEventListener('click', (e) => {
+            // If clicking buttons or links inside, don't toggle
+            if (e.target.tagName === 'BUTTON' || e.target.classList.contains('retry-link')) return;
+            
+            // If already said Yes, keep it open (optional preference)
+            if (isSuccess && locket.classList.contains('open')) return;
+
+            locket.classList.toggle('open');
+            
+            // Update hint text
+            if(locket.classList.contains('open')) {
+                hintText.style.opacity = '0';
+            } else {
+                hintText.style.opacity = '0.6';
+            }
+        });
+
+        // 2. Handle "Yes" - Immediate celebration
+        function sayYes(event) {
+            event.stopPropagation();
+            isSuccess = true;
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            createConfetti();
+        }
+
+        // 3. Handle "No" - Show Itzy screen
+        function sayNo(event) {
+            event.stopPropagation();
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'flex';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'none';
+        }
+
+        // 4. Confirm Yes from Itzy screen - Celebration
+        function confirmFromItzy(event) {
+            event.stopPropagation();
+            isSuccess = true;
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            createConfetti();
+        }
+
+        // 5. Reject from Itzy screen - Show GIF screen
+        function rejectFromItzy(event) {
+            event.stopPropagation();
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'flex';
+            wrongBlock.style.display = 'none';
+        }
+
+        // 6. Confirm Yes from GIF screen - Celebration
+        function confirmFromGif(event) {
+            event.stopPropagation();
+            isSuccess = true;
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            createConfetti();
+        }
+
+        // 7. Reject from GIF screen - Show wrong answer screen
+        function rejectFromGif(event) {
+            event.stopPropagation();
+            
+            questionBlock.style.display = 'none';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'flex';
+        }
+
+        // 8. Retry from wrong answer screen - Back to start
+        function retryFromStart(event) {
+            event.stopPropagation();
+            
+            questionBlock.style.display = 'flex';
+            angryBlock.style.display = 'none';
+            gifBlock.style.display = 'none';
+            wrongBlock.style.display = 'none';
+        }
+        function createConfetti() {
+            const colors = ['❤️', '🌹', '💖', '✨', '🥰'];
+            for(let i=0; i<25; i++) { // Reduced from 50 to 25
+                const conf = document.createElement('div');
+                conf.innerText = colors[Math.floor(Math.random() * colors.length)];
+                conf.classList.add('confetti');
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.fontSize = Math.random() * 15 + 15 + 'px'; // Smaller size
+                conf.style.animationDuration = Math.random() * 4 + 3 + 's'; // Slower fall
+                document.body.appendChild(conf);
+            }
+        }
+    </script>
+</body>
+</html>
